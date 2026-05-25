@@ -76,25 +76,28 @@ function formatTime(iso: string): string {
 }
 
 // Wiederverwendbares Formular für menu / roomdrinks / gift
-function CatalogForm({
-  token,
-  itemId,
-  options,
-  withRecipient = false,
-  defaultTime,
-  freeNoteLabel,
-  freeNotePlaceholder,
-  submitLabel,
-}: {
+type CatalogFormProps = {
   token: string;
   itemId: string;
-  options: { emoji: string; label: string }[];
+  options: Array<{ emoji: string; label: string }>;
   withRecipient?: boolean;
   defaultTime: string;
   freeNoteLabel: string;
   freeNotePlaceholder: string;
   submitLabel: string;
-}) {
+};
+
+function CatalogForm(props: CatalogFormProps) {
+  const {
+    token,
+    itemId,
+    options,
+    withRecipient = false,
+    defaultTime,
+    freeNoteLabel,
+    freeNotePlaceholder,
+    submitLabel,
+  } = props;
   return (
     <form action={requestService} className="space-y-5">
       <input type="hidden" name="token" value={token} />
@@ -288,7 +291,7 @@ export default async function RequestPage({
             withRecipient
             defaultTime="18:00"
             freeNoteLabel="Botschaft oder Wunsch"
-            freeNotePlaceholder="z.B. „Alles Gute zum Geburtstag, mein Schatz!", oder gewünschte Karte"
+            freeNotePlaceholder="z.B. Botschaft auf der Karte, Anlass (Geburtstag, Jubiläum, …)"
             submitLabel="Überraschung bestellen"
           />
         )}
