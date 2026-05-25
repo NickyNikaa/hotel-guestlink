@@ -108,7 +108,6 @@ export default async function RequestPage({
                       name="window"
                       value={w.value}
                       defaultChecked={idx === 0}
-                      required
                       className="sr-only"
                     />
                     <span className="font-medium">{w.label}</span>
@@ -116,6 +115,24 @@ export default async function RequestPage({
                   </label>
                 ))}
               </div>
+            </div>
+
+            <div className="border-t border-slate-200 pt-4">
+              <label
+                htmlFor="customTime"
+                className="block text-sm font-medium text-slate-700 mb-2"
+              >
+                Oder genaue Uhrzeit{" "}
+                <span className="text-slate-400 font-normal">
+                  (überschreibt das Zeitfenster)
+                </span>
+              </label>
+              <input
+                id="customTime"
+                type="time"
+                name="customTime"
+                className="block w-full rounded-lg border border-slate-200 px-3 py-3 text-base"
+              />
             </div>
 
             <button
@@ -128,26 +145,51 @@ export default async function RequestPage({
         )}
 
         {item.type === "duration" && (
-          <div className="space-y-2">
-            <p className="text-sm text-slate-600 text-center mb-3">
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600 text-center">
               Wie lange möchten Sie nicht gestört werden?
             </p>
-            {durationOptions.map((opt) => (
-              <form action={requestService} key={opt.label}>
+
+            <div className="space-y-2">
+              {durationOptions.map((opt) => (
+                <form action={requestService} key={opt.label}>
+                  <input type="hidden" name="token" value={token} />
+                  <input type="hidden" name="serviceItemId" value={item.id} />
+                  <input type="hidden" name="untilTime" value={opt.until} />
+                  <button
+                    type="submit"
+                    className="w-full bg-white hover:bg-brand hover:text-white border border-slate-200 rounded-xl px-4 py-4 text-left flex items-center justify-between transition"
+                  >
+                    <span className="font-medium">{opt.label}</span>
+                    <span className="text-xs opacity-60">
+                      bis {formatTime(opt.until)} Uhr
+                    </span>
+                  </button>
+                </form>
+              ))}
+            </div>
+
+            <div className="border-t border-slate-200 pt-4 space-y-3">
+              <p className="text-sm font-medium text-slate-700 text-center">
+                Oder bis zu einer bestimmten Uhrzeit
+              </p>
+              <form action={requestService} className="flex gap-2">
                 <input type="hidden" name="token" value={token} />
                 <input type="hidden" name="serviceItemId" value={item.id} />
-                <input type="hidden" name="untilTime" value={opt.until} />
+                <input
+                  type="time"
+                  name="customUntil"
+                  required
+                  className="flex-1 rounded-lg border border-slate-200 px-3 py-3 text-base"
+                />
                 <button
                   type="submit"
-                  className="w-full bg-white hover:bg-brand hover:text-white border border-slate-200 rounded-xl px-4 py-4 text-left flex items-center justify-between transition"
+                  className="bg-brand hover:bg-brand-dark text-white font-medium px-5 rounded-lg"
                 >
-                  <span className="font-medium">{opt.label}</span>
-                  <span className="text-xs opacity-60">
-                    bis {formatTime(opt.until)} Uhr
-                  </span>
+                  OK
                 </button>
               </form>
-            ))}
+            </div>
           </div>
         )}
 

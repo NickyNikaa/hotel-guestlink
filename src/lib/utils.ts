@@ -39,15 +39,22 @@ export function formatParams(
   params: unknown,
 ): string {
   if (!params || typeof params !== "object") return "";
-  const p = params as { date?: string; window?: string; untilTime?: string };
+  const p = params as {
+    date?: string;
+    window?: string;
+    time?: string;
+    untilTime?: string;
+  };
 
-  if (type === "scheduled" && p.date && p.window) {
+  if (type === "scheduled" && p.date) {
     const date = new Date(p.date).toLocaleDateString("de-DE", {
       weekday: "short",
       day: "2-digit",
       month: "2-digit",
     });
-    return `${date} · ${windowLabels[p.window] ?? p.window}`;
+    if (p.time) return `${date} · ${p.time} Uhr`;
+    if (p.window) return `${date} · ${windowLabels[p.window] ?? p.window}`;
+    return date;
   }
 
   if (type === "duration" && p.untilTime) {
