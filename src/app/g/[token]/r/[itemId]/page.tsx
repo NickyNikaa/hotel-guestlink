@@ -2,19 +2,15 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requestService } from "../../actions";
+import { getLang, t, translateItemLabel, type Lang } from "@/lib/i18n";
 
-const WINDOWS = [
-  { value: "morning", label: "Vormittag", time: "08–11 Uhr" },
-  { value: "midday", label: "Mittag", time: "11–14 Uhr" },
-  { value: "afternoon", label: "Nachmittag", time: "14–17 Uhr" },
-  { value: "evening", label: "Abend", time: "17–20 Uhr" },
-];
-
-const BREAKFAST_OPTIONS = [
-  { href: "book", emoji: "🥐", title: "Frühstück dazu buchen", desc: "Falls noch nicht in Ihrer Buchung enthalten" },
-  { href: "drink", emoji: "☕", title: "Getränk vorbestellen", desc: "Kaffee, Cappuccino, Tee — wartet auf Sie" },
-  { href: "wish", emoji: "📝", title: "Besondere Wünsche", desc: "Allergien, glutenfrei, vegan, Vorlieben" },
-];
+const WINDOWS_KEYS = ["morning", "midday", "afternoon", "evening"] as const;
+const WINDOW_TIMES: Record<string, string> = {
+  morning: "08–11",
+  midday: "11–14",
+  afternoon: "14–17",
+  evening: "17–20",
+};
 
 const MENU_OPTIONS = [
   { emoji: "🥗", label: "Gemischter Salat" },
@@ -57,6 +53,12 @@ const GIFT_OPTIONS = [
   { emoji: "💌", label: "Romantische Deko (Rosenblätter)" },
 ];
 
+const BREAKFAST_OPTIONS = (lang: Lang) => [
+  { href: "book", emoji: "🥐", titleKey: "breakfastBookTitle" as const, descKey: "breakfastBookDesc" as const },
+  { href: "drink", emoji: "☕", titleKey: "drinkTitle" as const, descKey: "drinkDesc" as const },
+  { href: "wish", emoji: "📝", titleKey: "wishTitle" as const, descKey: "wishDesc" as const },
+];
+
 function isoFromTodayAt(hour: number, minute = 0): string {
   const d = new Date();
   d.setHours(hour, minute, 0, 0);
@@ -75,7 +77,6 @@ function formatTime(iso: string): string {
   });
 }
 
-// Wiederverwendbares Formular für menu / roomdrinks / gift
 type CatalogFormProps = {
   token: string;
   itemId: string;
@@ -85,6 +86,7 @@ type CatalogFormProps = {
   freeNoteLabel: string;
   freeNotePlaceholder: string;
   submitLabel: string;
+  lang: Lang;
 };
 
 function CatalogForm(props: CatalogFormProps) {
@@ -97,6 +99,7 @@ function CatalogForm(props: CatalogFormProps) {
     freeNoteLabel,
     freeNotePlaceholder,
     submitLabel,
+    lang,
   } = props;
   return (
     <form action={requestService} className="space-y-5">
@@ -105,7 +108,7 @@ function CatalogForm(props: CatalogFormProps) {
 
       <div>
         <span className="block text-sm font-medium text-slate-700 mb-2">
-          Auswahl
+          {t("selection", lang)}
         </span>
         <div className="grid grid-cols-2 gap-2">
           {options.map((opt, idx) => (
@@ -131,7 +134,7 @@ function CatalogForm(props: CatalogFormProps) {
       <div className="grid grid-cols-2 gap-3">
         <label className="block">
           <span className="block text-sm font-medium text-slate-700 mb-1">
-            Anzahl
+            {t("quantity", lang)}
           </span>
           <input
             type="number"
@@ -144,7 +147,7 @@ function CatalogForm(props: CatalogFormProps) {
         </label>
         <label className="block">
           <span className="block text-sm font-medium text-slate-700 mb-1">
-            Uhrzeit
+            {t("time", lang)}
           </span>
           <input
             type="time"
@@ -158,9 +161,9 @@ function CatalogForm(props: CatalogFormProps) {
       {withRecipient && (
         <label className="block">
           <span className="block text-sm font-medium text-slate-700 mb-1">
-            Für wen?{" "}
+            {t("forWhom", lang)}{" "}
             <span className="text-slate-400 font-normal">
-              (Name oder Zimmernummer, optional)
+              {t("forWhomHint", lang)}
             </span>
           </span>
           <input
@@ -175,7 +178,7 @@ function CatalogForm(props: CatalogFormProps) {
       <label className="block">
         <span className="block text-sm font-medium text-slate-700 mb-1">
           {freeNoteLabel}{" "}
-          <span className="text-slate-400 font-normal">(optional)</span>
+          <span className="text-slate-400 font-normal">{t("optional", lang)}</span>
         </span>
         <textarea
           name="freeNote"
@@ -201,6 +204,7 @@ export default async function RequestPage({
   params: Promise<{ token: string; itemId: string }>;
 }) {
   const { token, itemId } = await params;
+  const lang = await getLang();
   const guest = await prisma.guest.findUnique({
     where: { token },
     include: { hotel: true },
@@ -214,12 +218,14 @@ export default async function RequestPage({
   const checkoutISO = guest.checkOut.toISOString().slice(0, 10);
 
   const durationOptions = [
-    { label: "1 Stunde", until: isoIn(1) },
-    { label: "2 Stunden", until: isoIn(2) },
-    { label: "4 Stunden", until: isoIn(4) },
-    { label: "Bis heute Abend", until: isoFromTodayAt(20) },
-    { label: "Bis morgen früh", until: isoFromTodayAt(8) },
+    { labelKey: "hour1" as const, until: isoIn(1) },
+    { labelKey: "hours2" as const, until: isoIn(2) },
+    { labelKey: "hours4" as const, until: isoIn(4) },
+    { labelKey: "tonight" as const, until: isoFromTodayAt(20) },
+    { labelKey: "tomorrow" as const, until: isoFromTodayAt(8) },
   ];
+
+  const translatedTitle = translateItemLabel(item.label, lang);
 
   return (
     <div className="min-h-screen bg-slate-50 p-4">
@@ -228,17 +234,17 @@ export default async function RequestPage({
           href={`/g/${token}`}
           className="text-sm text-slate-500 hover:text-slate-700 inline-flex items-center gap-1"
         >
-          ← Zurück zum Menü
+          ← {t("backToMenu", lang)}
         </Link>
 
         <header className="text-center">
           <div className="text-5xl">{item.emoji}</div>
-          <h1 className="text-2xl font-semibold mt-2">{item.label}</h1>
+          <h1 className="text-2xl font-semibold mt-2">{translatedTitle}</h1>
         </header>
 
         {item.type === "breakfast" && (
           <section className="space-y-3">
-            {BREAKFAST_OPTIONS.map((opt) => (
+            {BREAKFAST_OPTIONS(lang).map((opt) => (
               <Link
                 key={opt.href}
                 href={`/g/${token}/r/${item.id}/${opt.href}`}
@@ -247,9 +253,9 @@ export default async function RequestPage({
                 <div className="flex items-start gap-3">
                   <span className="text-2xl">{opt.emoji}</span>
                   <div className="flex-1">
-                    <div className="font-medium">{opt.title}</div>
+                    <div className="font-medium">{t(opt.titleKey, lang)}</div>
                     <div className="text-xs text-slate-500 group-hover:text-white/80 mt-0.5">
-                      {opt.desc}
+                      {t(opt.descKey, lang)}
                     </div>
                   </div>
                   <span className="text-slate-400 group-hover:text-white">›</span>
@@ -265,9 +271,10 @@ export default async function RequestPage({
             itemId={item.id}
             options={MENU_OPTIONS}
             defaultTime="19:00"
-            freeNoteLabel="Besondere Wünsche / Sonderwunsch"
-            freeNotePlaceholder="z.B. glutenfrei, ohne Zwiebeln, extra scharf, oder ganz anderes Gericht …"
-            submitLabel="Bestellen"
+            freeNoteLabel={t("wishTitle", lang)}
+            freeNotePlaceholder="z.B. glutenfrei, ohne Zwiebeln, extra scharf …"
+            submitLabel={t("order", lang)}
+            lang={lang}
           />
         )}
 
@@ -277,9 +284,10 @@ export default async function RequestPage({
             itemId={item.id}
             options={ROOMDRINKS_OPTIONS}
             defaultTime="18:00"
-            freeNoteLabel="Anmerkung"
+            freeNoteLabel={t("wishTitle", lang)}
             freeNotePlaceholder="z.B. gekühlt, mit Eis, bestimmte Marke …"
-            submitLabel="Bestellen"
+            submitLabel={t("order", lang)}
+            lang={lang}
           />
         )}
 
@@ -290,9 +298,10 @@ export default async function RequestPage({
             options={GIFT_OPTIONS}
             withRecipient
             defaultTime="18:00"
-            freeNoteLabel="Botschaft oder Wunsch"
+            freeNoteLabel={t("wishTitle", lang)}
             freeNotePlaceholder="z.B. Botschaft auf der Karte, Anlass (Geburtstag, Jubiläum, …)"
-            submitLabel="Überraschung bestellen"
+            submitLabel={t("order", lang)}
+            lang={lang}
           />
         )}
 
@@ -300,11 +309,7 @@ export default async function RequestPage({
           <form action={requestService} className="space-y-4">
             <input type="hidden" name="token" value={token} />
             <input type="hidden" name="serviceItemId" value={item.id} />
-            <label htmlFor="freeNote" className="block text-sm text-slate-600">
-              Beschreiben Sie Ihren Wunsch — wir kümmern uns darum, wenn möglich.
-            </label>
             <textarea
-              id="freeNote"
               name="freeNote"
               required
               rows={5}
@@ -315,7 +320,7 @@ export default async function RequestPage({
               type="submit"
               className="w-full bg-brand hover:bg-brand-dark text-white font-medium py-3.5 rounded-xl"
             >
-              Anfrage senden
+              {t("sendRequest", lang)}
             </button>
           </form>
         )}
@@ -327,7 +332,7 @@ export default async function RequestPage({
 
             <div>
               <label htmlFor="date" className="block text-sm font-medium text-slate-700 mb-2">
-                Datum
+                {t("date", lang)}
               </label>
               <input
                 id="date"
@@ -343,23 +348,23 @@ export default async function RequestPage({
 
             <div>
               <span className="block text-sm font-medium text-slate-700 mb-2">
-                Zeitfenster
+                {t("timeWindow", lang)}
               </span>
               <div className="grid grid-cols-2 gap-2">
-                {WINDOWS.map((w, idx) => (
+                {WINDOWS_KEYS.map((w, idx) => (
                   <label
-                    key={w.value}
+                    key={w}
                     className="flex flex-col items-center gap-0.5 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-brand transition has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:border-brand"
                   >
                     <input
                       type="radio"
                       name="window"
-                      value={w.value}
+                      value={w}
                       defaultChecked={idx === 0}
                       className="sr-only"
                     />
-                    <span className="font-medium">{w.label}</span>
-                    <span className="text-xs opacity-80">{w.time}</span>
+                    <span className="font-medium">{t(w, lang)}</span>
+                    <span className="text-xs opacity-80">{WINDOW_TIMES[w]} Uhr</span>
                   </label>
                 ))}
               </div>
@@ -367,8 +372,10 @@ export default async function RequestPage({
 
             <div className="border-t border-slate-200 pt-4">
               <label htmlFor="customTime" className="block text-sm font-medium text-slate-700 mb-2">
-                Oder genaue Uhrzeit{" "}
-                <span className="text-slate-400 font-normal">(überschreibt das Zeitfenster)</span>
+                {t("orExactTime", lang)}{" "}
+                <span className="text-slate-400 font-normal">
+                  {t("overridesWindow", lang)}
+                </span>
               </label>
               <input
                 id="customTime"
@@ -382,7 +389,7 @@ export default async function RequestPage({
               type="submit"
               className="w-full bg-brand hover:bg-brand-dark text-white font-medium py-3.5 rounded-xl"
             >
-              Anfrage senden
+              {t("sendRequest", lang)}
             </button>
           </form>
         )}
@@ -390,12 +397,12 @@ export default async function RequestPage({
         {item.type === "duration" && (
           <div className="space-y-4">
             <p className="text-sm text-slate-600 text-center">
-              Wie lange möchten Sie nicht gestört werden?
+              {t("notDisturbQuestion", lang)}
             </p>
 
             <div className="space-y-2">
               {durationOptions.map((opt) => (
-                <form action={requestService} key={opt.label}>
+                <form action={requestService} key={opt.labelKey}>
                   <input type="hidden" name="token" value={token} />
                   <input type="hidden" name="serviceItemId" value={item.id} />
                   <input type="hidden" name="untilTime" value={opt.until} />
@@ -403,9 +410,9 @@ export default async function RequestPage({
                     type="submit"
                     className="w-full bg-white hover:bg-brand hover:text-white border border-slate-200 rounded-xl px-4 py-4 text-left flex items-center justify-between transition"
                   >
-                    <span className="font-medium">{opt.label}</span>
+                    <span className="font-medium">{t(opt.labelKey, lang)}</span>
                     <span className="text-xs opacity-60">
-                      bis {formatTime(opt.until)} Uhr
+                      {t("until", lang)} {formatTime(opt.until)}
                     </span>
                   </button>
                 </form>
@@ -414,7 +421,7 @@ export default async function RequestPage({
 
             <div className="border-t border-slate-200 pt-4 space-y-3">
               <p className="text-sm font-medium text-slate-700 text-center">
-                Oder bis zu einer bestimmten Uhrzeit
+                {t("orCustomTime", lang)}
               </p>
               <form action={requestService} className="flex gap-2">
                 <input type="hidden" name="token" value={token} />
@@ -429,7 +436,7 @@ export default async function RequestPage({
                   type="submit"
                   className="bg-brand hover:bg-brand-dark text-white font-medium px-5 rounded-lg"
                 >
-                  OK
+                  {t("ok", lang)}
                 </button>
               </form>
             </div>
@@ -444,7 +451,7 @@ export default async function RequestPage({
               type="submit"
               className="w-full bg-brand hover:bg-brand-dark text-white font-medium py-3.5 rounded-xl"
             >
-              Anfrage senden
+              {t("sendRequest", lang)}
             </button>
           </form>
         )}

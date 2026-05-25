@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requestService } from "../../../actions";
+import { getLang, t } from "@/lib/i18n";
 
 export default async function WishPage({
   params,
@@ -9,6 +10,7 @@ export default async function WishPage({
   params: Promise<{ token: string; itemId: string }>;
 }) {
   const { token, itemId } = await params;
+  const lang = await getLang();
   const guest = await prisma.guest.findUnique({ where: { token } });
   if (!guest) return notFound();
 
@@ -22,7 +24,7 @@ export default async function WishPage({
           href={`/g/${token}/r/${item.id}`}
           className="text-sm text-slate-500 hover:text-slate-700 inline-flex items-center gap-1"
         >
-          ← Zurück
+          ← {t("back", lang)}
         </Link>
 
         <header className="text-center">

@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requestService } from "../../../actions";
+import { getLang, t } from "@/lib/i18n";
 
 export default async function BookBreakfastPage({
   params,
@@ -9,6 +10,7 @@ export default async function BookBreakfastPage({
   params: Promise<{ token: string; itemId: string }>;
 }) {
   const { token, itemId } = await params;
+  const lang = await getLang();
   const guest = await prisma.guest.findUnique({ where: { token } });
   if (!guest) return notFound();
 
@@ -22,13 +24,13 @@ export default async function BookBreakfastPage({
           href={`/g/${token}/r/${item.id}`}
           className="text-sm text-slate-500 hover:text-slate-700 inline-flex items-center gap-1"
         >
-          ← Zurück
+          ← {t("back", lang)}
         </Link>
 
         <header className="text-center">
           <div className="text-5xl">🥐</div>
           <h1 className="text-2xl font-semibold mt-2">
-            Frühstück dazu buchen
+            {t("breakfastBookTitle", lang)}
           </h1>
         </header>
 
@@ -58,7 +60,7 @@ export default async function BookBreakfastPage({
           href={`/g/${token}/r/${item.id}`}
           className="block text-center text-slate-500 hover:text-slate-700 py-2"
         >
-          Abbrechen
+          {t("cancel", lang)}
         </Link>
       </div>
     </div>
