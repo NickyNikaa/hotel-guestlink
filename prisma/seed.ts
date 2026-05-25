@@ -11,12 +11,12 @@ async function main() {
       email: "demo@hotel.test",
       serviceItems: {
         create: [
-          { label: "Handtuchwechsel", emoji: "🧻", sortIdx: 1 },
-          { label: "Bettwäsche neu", emoji: "🛏️", sortIdx: 2 },
-          { label: "Nicht stören", emoji: "🚫", sortIdx: 3 },
-          { label: "Wecker bitte", emoji: "⏰", sortIdx: 4 },
-          { label: "Frühstückszeit reservieren", emoji: "🥐", sortIdx: 5 },
-          { label: "Menü-Vorbestellung", emoji: "🍽️", sortIdx: 6 },
+          { label: "Handtuchwechsel", emoji: "🧻", sortIdx: 1, type: "scheduled" },
+          { label: "Bettwäsche neu", emoji: "🛏️", sortIdx: 2, type: "scheduled" },
+          { label: "Nicht stören", emoji: "🚫", sortIdx: 3, type: "duration" },
+          { label: "Wecker bitte", emoji: "⏰", sortIdx: 4, type: "scheduled" },
+          { label: "Frühstückszeit reservieren", emoji: "🥐", sortIdx: 5, type: "scheduled" },
+          { label: "Menü-Vorbestellung", emoji: "🍽️", sortIdx: 6, type: "simple" },
         ],
       },
     },

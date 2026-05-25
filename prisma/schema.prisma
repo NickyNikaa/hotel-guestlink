@@ -27,6 +27,10 @@ model ServiceItem {
   emoji    String?          // z.B. "🧻"
   active   Boolean          @default(true)
   sortIdx  Int              @default(0)
+  // "simple"    = sofort (z.B. Bettwäsche neu)
+  // "scheduled" = Datum + Zeitfenster (Handtuch, Wecker, Frühstück)
+  // "duration"  = wie lange (Nicht stören)
+  type     String           @default("simple")
   hotel    Hotel            @relation(fields: [hotelId], references: [id], onDelete: Cascade)
   requests ServiceRequest[]
 }
@@ -53,6 +57,10 @@ model ServiceRequest {
   status        String      @default("open") // "open" | "done"
   createdAt     DateTime    @default(now())
   doneAt        DateTime?
+  // Type-spezifische Parameter:
+  // scheduled: { date: "2026-05-25", window: "morning|midday|afternoon|evening" }
+  // duration:  { untilTime: "2026-05-25T20:00:00.000Z" }
+  params        Json?
   guest         Guest       @relation(fields: [guestId], references: [id], onDelete: Cascade)
   serviceItem   ServiceItem @relation(fields: [serviceItemId], references: [id])
 }

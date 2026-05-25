@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatParams } from "@/lib/utils";
 import QRCode from "qrcode";
 import { headers } from "next/headers";
 
@@ -58,23 +58,29 @@ export default async function GuestDetailPage({
           </p>
         ) : (
           <ul className="space-y-2">
-            {guest.requests.map((r) => (
-              <li
-                key={r.id}
-                className="bg-white rounded shadow-sm px-4 py-2 flex justify-between text-sm"
-              >
-                <span>
-                  {r.serviceItem.emoji} {r.serviceItem.label}
-                </span>
-                <span
-                  className={
-                    r.status === "done" ? "text-green-600" : "text-amber-600"
-                  }
+            {guest.requests.map((r) => {
+              const summary = formatParams(r.serviceItem.type, r.params);
+              return (
+                <li
+                  key={r.id}
+                  className="bg-white rounded shadow-sm px-4 py-2 flex justify-between items-center text-sm"
                 >
-                  {r.status === "done" ? "✓ erledigt" : "offen"}
-                </span>
-              </li>
-            ))}
+                  <span>
+                    {r.serviceItem.emoji} {r.serviceItem.label}
+                    {summary && (
+                      <span className="text-slate-500 ml-2">· {summary}</span>
+                    )}
+                  </span>
+                  <span
+                    className={
+                      r.status === "done" ? "text-green-600" : "text-amber-600"
+                    }
+                  >
+                    {r.status === "done" ? "✓ erledigt" : "offen"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
