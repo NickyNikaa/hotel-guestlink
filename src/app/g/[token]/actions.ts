@@ -31,10 +31,15 @@ export async function requestService(formData: FormData) {
   const customTime = formData.get("customTime");
   const untilTime = formData.get("untilTime");
   const customUntil = formData.get("customUntil");
-  const subOption = formData.get("subOption"); // breakfast: "book" | "drink" | "wish"
+  const subOption = formData.get("subOption");
   const drink = formData.get("drink");
   const drinkTime = formData.get("drinkTime");
   const freeNote = formData.get("freeNote");
+  // Menu / Roomdrinks / Gift
+  const selectedItem = formData.get("selectedItem");
+  const quantity = formData.get("quantity");
+  const requestedTime = formData.get("requestedTime");
+  const recipient = formData.get("recipient");
 
   let params:
     | {
@@ -45,6 +50,10 @@ export async function requestService(formData: FormData) {
         subOption?: string;
         drink?: string;
         drinkTime?: string;
+        selectedItem?: string;
+        quantity?: number;
+        requestedTime?: string;
+        recipient?: string;
       }
     | undefined;
   let note: string | undefined;
@@ -62,17 +71,27 @@ export async function requestService(formData: FormData) {
     params = { subOption: "wish" };
     if (freeNote) note = String(freeNote);
   }
-  // 2. Sonstige Wünsche (freetext) — kein subOption, nur freeNote
+  // 2. Menu / Roomdrinks / Gift — alle haben selectedItem
+  else if (selectedItem) {
+    params = {
+      selectedItem: String(selectedItem),
+      ...(quantity ? { quantity: Number(quantity) } : {}),
+      ...(requestedTime ? { requestedTime: String(requestedTime) } : {}),
+      ...(recipient ? { recipient: String(recipient) } : {}),
+    };
+    if (freeNote) note = String(freeNote);
+  }
+  // 3. Sonstige Wünsche (freetext)
   else if (freeNote && String(freeNote).trim().length > 0) {
     note = String(freeNote);
   }
-  // 3. Scheduled-Anfrage: Datum + entweder Zeitfenster oder genaue Uhrzeit
+  // 4. Scheduled
   else if (date && customTime && String(customTime).length > 0) {
     params = { date: String(date), time: String(customTime) };
   } else if (date && win) {
     params = { date: String(date), window: String(win) };
   }
-  // 4. Duration-Anfrage: entweder Quick-Pick (untilTime) oder eigene Uhrzeit
+  // 5. Duration
   else if (customUntil && String(customUntil).length > 0) {
     params = { untilTime: timeStringToISO(String(customUntil)) };
   } else if (untilTime) {

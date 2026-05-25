@@ -47,6 +47,10 @@ export function formatParams(
     subOption?: string;
     drink?: string;
     drinkTime?: string;
+    selectedItem?: string;
+    quantity?: number;
+    requestedTime?: string;
+    recipient?: string;
   };
 
   // Frühstück-Sub-Options haben eigene Anzeige
@@ -57,6 +61,15 @@ export function formatParams(
       : p.drink;
   }
   if (p.subOption === "wish") return "Besonderer Wunsch";
+
+  // Menu / Roomdrinks / Gift
+  if (p.selectedItem) {
+    const parts = [p.selectedItem];
+    if (p.quantity && p.quantity > 1) parts.push(`${p.quantity}×`);
+    if (p.requestedTime) parts.push(`${p.requestedTime} Uhr`);
+    if (p.recipient) parts.push(`für ${p.recipient}`);
+    return parts.join(" · ");
+  }
 
   if (type === "scheduled" && p.date) {
     const date = new Date(p.date).toLocaleDateString("de-DE", {

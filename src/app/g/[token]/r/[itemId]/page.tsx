@@ -11,24 +11,50 @@ const WINDOWS = [
 ];
 
 const BREAKFAST_OPTIONS = [
-  {
-    href: "book",
-    emoji: "🥐",
-    title: "Frühstück dazu buchen",
-    desc: "Falls noch nicht in Ihrer Buchung enthalten",
-  },
-  {
-    href: "drink",
-    emoji: "☕",
-    title: "Getränk vorbestellen",
-    desc: "Kaffee, Cappuccino, Tee — wartet auf Sie",
-  },
-  {
-    href: "wish",
-    emoji: "📝",
-    title: "Besondere Wünsche",
-    desc: "Allergien, glutenfrei, vegan, Vorlieben",
-  },
+  { href: "book", emoji: "🥐", title: "Frühstück dazu buchen", desc: "Falls noch nicht in Ihrer Buchung enthalten" },
+  { href: "drink", emoji: "☕", title: "Getränk vorbestellen", desc: "Kaffee, Cappuccino, Tee — wartet auf Sie" },
+  { href: "wish", emoji: "📝", title: "Besondere Wünsche", desc: "Allergien, glutenfrei, vegan, Vorlieben" },
+];
+
+const MENU_OPTIONS = [
+  { emoji: "🥗", label: "Gemischter Salat" },
+  { emoji: "🥗", label: "Caesar Salad" },
+  { emoji: "🍅", label: "Caprese (Tomate-Mozzarella)" },
+  { emoji: "🍕", label: "Pizza Margherita" },
+  { emoji: "🍕", label: "Pizza Salami" },
+  { emoji: "🍕", label: "Pizza Vegetarisch" },
+  { emoji: "🍝", label: "Spaghetti Bolognese" },
+  { emoji: "🍝", label: "Penne Arrabiata" },
+  { emoji: "🍔", label: "Burger Klassisch" },
+  { emoji: "🥪", label: "Club Sandwich" },
+  { emoji: "🍰", label: "Tiramisu" },
+  { emoji: "🍦", label: "Eisbecher" },
+];
+
+const ROOMDRINKS_OPTIONS = [
+  { emoji: "💧", label: "Wasser still" },
+  { emoji: "💦", label: "Wasser sprudelnd" },
+  { emoji: "🍷", label: "Rotwein (Flasche)" },
+  { emoji: "🥂", label: "Weißwein (Flasche)" },
+  { emoji: "🍾", label: "Sekt / Prosecco" },
+  { emoji: "🥂", label: "Champagner" },
+  { emoji: "🍺", label: "Bier" },
+  { emoji: "🍹", label: "Aperol Spritz" },
+  { emoji: "🥤", label: "Cola / Softdrink" },
+  { emoji: "🧃", label: "Saft" },
+];
+
+const GIFT_OPTIONS = [
+  { emoji: "🌹", label: "Blumenstrauß bunt" },
+  { emoji: "🌷", label: "Tulpen" },
+  { emoji: "🌹", label: "Rosenstrauß rot" },
+  { emoji: "🍫", label: "Pralinenschachtel" },
+  { emoji: "🎂", label: "Kleiner Kuchen" },
+  { emoji: "🍰", label: "Mini-Torte mit Schriftzug" },
+  { emoji: "🍾", label: "Sekt + 2 Gläser" },
+  { emoji: "🥂", label: "Champagner-Überraschung" },
+  { emoji: "🧸", label: "Plüschtier" },
+  { emoji: "💌", label: "Romantische Deko (Rosenblätter)" },
 ];
 
 function isoFromTodayAt(hour: number, minute = 0): string {
@@ -47,6 +73,123 @@ function formatTime(iso: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+// Wiederverwendbares Formular für menu / roomdrinks / gift
+function CatalogForm({
+  token,
+  itemId,
+  options,
+  withRecipient = false,
+  defaultTime,
+  freeNoteLabel,
+  freeNotePlaceholder,
+  submitLabel,
+}: {
+  token: string;
+  itemId: string;
+  options: { emoji: string; label: string }[];
+  withRecipient?: boolean;
+  defaultTime: string;
+  freeNoteLabel: string;
+  freeNotePlaceholder: string;
+  submitLabel: string;
+}) {
+  return (
+    <form action={requestService} className="space-y-5">
+      <input type="hidden" name="token" value={token} />
+      <input type="hidden" name="serviceItemId" value={itemId} />
+
+      <div>
+        <span className="block text-sm font-medium text-slate-700 mb-2">
+          Auswahl
+        </span>
+        <div className="grid grid-cols-2 gap-2">
+          {options.map((opt, idx) => (
+            <label
+              key={opt.label}
+              className="flex items-center gap-2 p-3 bg-white border border-slate-200 rounded-lg cursor-pointer hover:border-brand transition has-[:checked]:bg-brand has-[:checked]:text-white has-[:checked]:border-brand"
+            >
+              <input
+                type="radio"
+                name="selectedItem"
+                value={opt.label}
+                defaultChecked={idx === 0}
+                required
+                className="sr-only"
+              />
+              <span>{opt.emoji}</span>
+              <span className="font-medium text-sm leading-tight">{opt.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <label className="block">
+          <span className="block text-sm font-medium text-slate-700 mb-1">
+            Anzahl
+          </span>
+          <input
+            type="number"
+            name="quantity"
+            min={1}
+            max={20}
+            defaultValue={1}
+            className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-sm font-medium text-slate-700 mb-1">
+            Uhrzeit
+          </span>
+          <input
+            type="time"
+            name="requestedTime"
+            defaultValue={defaultTime}
+            className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base"
+          />
+        </label>
+      </div>
+
+      {withRecipient && (
+        <label className="block">
+          <span className="block text-sm font-medium text-slate-700 mb-1">
+            Für wen?{" "}
+            <span className="text-slate-400 font-normal">
+              (Name oder Zimmernummer, optional)
+            </span>
+          </span>
+          <input
+            type="text"
+            name="recipient"
+            placeholder="z.B. meine Frau, Zimmer 12"
+            className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base"
+          />
+        </label>
+      )}
+
+      <label className="block">
+        <span className="block text-sm font-medium text-slate-700 mb-1">
+          {freeNoteLabel}{" "}
+          <span className="text-slate-400 font-normal">(optional)</span>
+        </span>
+        <textarea
+          name="freeNote"
+          rows={3}
+          placeholder={freeNotePlaceholder}
+          className="block w-full rounded-lg border border-slate-200 px-3 py-2.5 text-base resize-none"
+        />
+      </label>
+
+      <button
+        type="submit"
+        className="w-full bg-brand hover:bg-brand-dark text-white font-medium py-3.5 rounded-xl"
+      >
+        {submitLabel}
+      </button>
+    </form>
+  );
 }
 
 export default async function RequestPage({
@@ -77,7 +220,7 @@ export default async function RequestPage({
 
   return (
     <div className="min-h-screen bg-slate-50 p-4">
-      <div className="max-w-md mx-auto pt-4 space-y-6">
+      <div className="max-w-md mx-auto pt-4 pb-12 space-y-6">
         <Link
           href={`/g/${token}`}
           className="text-sm text-slate-500 hover:text-slate-700 inline-flex items-center gap-1"
@@ -113,13 +256,49 @@ export default async function RequestPage({
           </section>
         )}
 
+        {item.type === "menu" && (
+          <CatalogForm
+            token={token}
+            itemId={item.id}
+            options={MENU_OPTIONS}
+            defaultTime="19:00"
+            freeNoteLabel="Besondere Wünsche / Sonderwunsch"
+            freeNotePlaceholder="z.B. glutenfrei, ohne Zwiebeln, extra scharf, oder ganz anderes Gericht …"
+            submitLabel="Bestellen"
+          />
+        )}
+
+        {item.type === "roomdrinks" && (
+          <CatalogForm
+            token={token}
+            itemId={item.id}
+            options={ROOMDRINKS_OPTIONS}
+            defaultTime="18:00"
+            freeNoteLabel="Anmerkung"
+            freeNotePlaceholder="z.B. gekühlt, mit Eis, bestimmte Marke …"
+            submitLabel="Bestellen"
+          />
+        )}
+
+        {item.type === "gift" && (
+          <CatalogForm
+            token={token}
+            itemId={item.id}
+            options={GIFT_OPTIONS}
+            withRecipient
+            defaultTime="18:00"
+            freeNoteLabel="Botschaft oder Wunsch"
+            freeNotePlaceholder="z.B. „Alles Gute zum Geburtstag, mein Schatz!", oder gewünschte Karte"
+            submitLabel="Überraschung bestellen"
+          />
+        )}
+
         {item.type === "freetext" && (
           <form action={requestService} className="space-y-4">
             <input type="hidden" name="token" value={token} />
             <input type="hidden" name="serviceItemId" value={item.id} />
             <label htmlFor="freeNote" className="block text-sm text-slate-600">
-              Beschreiben Sie Ihren Wunsch — wir kümmern uns darum, wenn
-              möglich.
+              Beschreiben Sie Ihren Wunsch — wir kümmern uns darum, wenn möglich.
             </label>
             <textarea
               id="freeNote"
@@ -144,10 +323,7 @@ export default async function RequestPage({
             <input type="hidden" name="serviceItemId" value={item.id} />
 
             <div>
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-slate-700 mb-2"
-              >
+              <label htmlFor="date" className="block text-sm font-medium text-slate-700 mb-2">
                 Datum
               </label>
               <input
@@ -187,14 +363,9 @@ export default async function RequestPage({
             </div>
 
             <div className="border-t border-slate-200 pt-4">
-              <label
-                htmlFor="customTime"
-                className="block text-sm font-medium text-slate-700 mb-2"
-              >
+              <label htmlFor="customTime" className="block text-sm font-medium text-slate-700 mb-2">
                 Oder genaue Uhrzeit{" "}
-                <span className="text-slate-400 font-normal">
-                  (überschreibt das Zeitfenster)
-                </span>
+                <span className="text-slate-400 font-normal">(überschreibt das Zeitfenster)</span>
               </label>
               <input
                 id="customTime"
