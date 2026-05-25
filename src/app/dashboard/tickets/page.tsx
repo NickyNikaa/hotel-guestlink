@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { markTicketDone } from "../actions";
 import { formatParams } from "@/lib/utils";
 
+// Niemals statisch — Tickets müssen immer frisch sein
+export const dynamic = "force-dynamic";
+
 export default async function TicketsPage() {
   const tickets = await prisma.serviceRequest.findMany({
     where: { status: "open" },

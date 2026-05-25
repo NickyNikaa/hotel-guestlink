@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 export async function requestService(formData: FormData) {
   const token = String(formData.get("token"));
@@ -29,6 +30,11 @@ export async function requestService(formData: FormData) {
       params: params ?? undefined,
     },
   });
+
+  // Hotel-Sicht muss neu rendern, damit das neue Ticket sofort sichtbar ist
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/tickets");
+  revalidatePath(`/dashboard/guests/${guest.id}`);
 
   redirect(`/g/${token}/danke`);
 }
