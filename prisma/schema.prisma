@@ -1,0 +1,58 @@
+// Hotel Guestlink — Data Model (Session 1)
+// Hotel hat viele Gäste. Jeder Gast hat einen eindeutigen Token (= QR-URL).
+// Jeder Gast kann Service-Requests stellen, die Hotel-Mitarbeiter abhaken.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Hotel {
+  id           String        @id @default(cuid())
+  name         String
+  email        String        @unique
+  createdAt    DateTime      @default(now())
+  guests       Guest[]
+  serviceItems ServiceItem[]
+}
+
+model ServiceItem {
+  id       String           @id @default(cuid())
+  hotelId  String
+  label    String           // z.B. "Handtuchwechsel"
+  emoji    String?          // z.B. "🧻"
+  active   Boolean          @default(true)
+  sortIdx  Int              @default(0)
+  hotel    Hotel            @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  requests ServiceRequest[]
+}
+
+model Guest {
+  id        String           @id @default(cuid())
+  token     String           @unique // = öffentliche QR-URL /g/[token]
+  hotelId   String
+  name      String
+  email     String
+  room      String
+  checkIn   DateTime
+  checkOut  DateTime
+  createdAt DateTime         @default(now())
+  hotel     Hotel            @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  requests  ServiceRequest[]
+}
+
+model ServiceRequest {
+  id            String      @id @default(cuid())
+  guestId       String
+  serviceItemId String
+  note          String?
+  status        String      @default("open") // "open" | "done"
+  createdAt     DateTime    @default(now())
+  doneAt        DateTime?
+  guest         Guest       @relation(fields: [guestId], references: [id], onDelete: Cascade)
+  serviceItem   ServiceItem @relation(fields: [serviceItemId], references: [id])
+}
