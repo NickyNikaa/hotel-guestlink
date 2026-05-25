@@ -202,6 +202,13 @@ const ITEM_LABELS: Record<string, Record<Lang, string>> = {
     fr: "Ne pas déranger",
     es: "No molestar",
   },
+  Concierge: {
+    de: "Concierge",
+    en: "Concierge",
+    it: "Concierge",
+    fr: "Conciergerie",
+    es: "Conserje",
+  },
   Frühstück: {
     de: "Frühstück",
     en: "Breakfast",

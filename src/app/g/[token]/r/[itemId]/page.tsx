@@ -4,6 +4,7 @@ import Link from "next/link";
 import { requestService } from "../../actions";
 import { t, translateItemLabel, type Lang } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
+import { ConciergeChat } from "@/components/ConciergeChat";
 
 const WINDOWS_KEYS = ["morning", "midday", "afternoon", "evening"] as const;
 const WINDOW_TIMES: Record<string, string> = {
@@ -242,6 +243,10 @@ export default async function RequestPage({
           <div className="text-5xl">{item.emoji}</div>
           <h1 className="text-2xl font-semibold mt-2">{translatedTitle}</h1>
         </header>
+
+        {item.type === "concierge" && (
+          <ConciergeChat token={token} lang={lang} />
+        )}
 
         {item.type === "breakfast" && (
           <section className="space-y-3">

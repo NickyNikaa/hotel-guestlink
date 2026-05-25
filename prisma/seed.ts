@@ -14,6 +14,7 @@ async function main() {
           { label: "Handtuchwechsel", emoji: "🛁", sortIdx: 1, type: "scheduled" },
           { label: "Bettwäsche neu", emoji: "🛏️", sortIdx: 2, type: "scheduled" },
           { label: "Nicht stören", emoji: "🚫", sortIdx: 3, type: "duration" },
+          { label: "Concierge", emoji: "💬", sortIdx: 4, type: "concierge" },
           { label: "Frühstück", emoji: "🥐", sortIdx: 5, type: "breakfast" },
           { label: "Speisen bestellen", emoji: "🍽️", sortIdx: 6, type: "menu" },
           { label: "Getränke aufs Zimmer", emoji: "🍷", sortIdx: 7, type: "roomdrinks" },
