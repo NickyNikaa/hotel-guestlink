@@ -14,9 +14,23 @@ export default async function TicketsPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold">
-        Offene Tickets ({tickets.length})
-      </h1>
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">
+            Offene Tickets
+          </h1>
+          <p className="text-xs text-slate-400 mt-1">
+            Neue Anfragen werden automatisch hier angezeigt
+          </p>
+        </div>
+        <div
+          className={`text-5xl font-bold ${
+            tickets.length > 0 ? "text-amber-600" : "text-slate-300"
+          }`}
+        >
+          {tickets.length}
+        </div>
+      </div>
       {tickets.length === 0 ? (
         <p className="text-slate-500">
           Aktuell keine offenen Anfragen. ✨
