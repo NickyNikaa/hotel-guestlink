@@ -10,6 +10,27 @@ const WINDOWS = [
   { value: "evening", label: "Abend", time: "17–20 Uhr" },
 ];
 
+const BREAKFAST_OPTIONS = [
+  {
+    href: "book",
+    emoji: "🥐",
+    title: "Frühstück dazu buchen",
+    desc: "Falls noch nicht in Ihrer Buchung enthalten",
+  },
+  {
+    href: "drink",
+    emoji: "☕",
+    title: "Getränk vorbestellen",
+    desc: "Kaffee, Cappuccino, Tee — wartet auf Sie",
+  },
+  {
+    href: "wish",
+    emoji: "📝",
+    title: "Besondere Wünsche",
+    desc: "Allergien, glutenfrei, vegan, Vorlieben",
+  },
+];
+
 function isoFromTodayAt(hour: number, minute = 0): string {
   const d = new Date();
   d.setHours(hour, minute, 0, 0);
@@ -68,6 +89,54 @@ export default async function RequestPage({
           <div className="text-5xl">{item.emoji}</div>
           <h1 className="text-2xl font-semibold mt-2">{item.label}</h1>
         </header>
+
+        {item.type === "breakfast" && (
+          <section className="space-y-3">
+            {BREAKFAST_OPTIONS.map((opt) => (
+              <Link
+                key={opt.href}
+                href={`/g/${token}/r/${item.id}/${opt.href}`}
+                className="block bg-white hover:bg-brand hover:text-white border border-slate-200 rounded-xl p-4 transition group"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="text-2xl">{opt.emoji}</span>
+                  <div className="flex-1">
+                    <div className="font-medium">{opt.title}</div>
+                    <div className="text-xs text-slate-500 group-hover:text-white/80 mt-0.5">
+                      {opt.desc}
+                    </div>
+                  </div>
+                  <span className="text-slate-400 group-hover:text-white">›</span>
+                </div>
+              </Link>
+            ))}
+          </section>
+        )}
+
+        {item.type === "freetext" && (
+          <form action={requestService} className="space-y-4">
+            <input type="hidden" name="token" value={token} />
+            <input type="hidden" name="serviceItemId" value={item.id} />
+            <label htmlFor="freeNote" className="block text-sm text-slate-600">
+              Beschreiben Sie Ihren Wunsch — wir kümmern uns darum, wenn
+              möglich.
+            </label>
+            <textarea
+              id="freeNote"
+              name="freeNote"
+              required
+              rows={5}
+              placeholder="z.B. Bügeleisen aufs Zimmer, Taxi für morgen 09:00 bestellen, …"
+              className="block w-full rounded-lg border border-slate-200 px-3 py-3 text-base resize-none"
+            />
+            <button
+              type="submit"
+              className="w-full bg-brand hover:bg-brand-dark text-white font-medium py-3.5 rounded-xl"
+            >
+              Anfrage senden
+            </button>
+          </form>
+        )}
 
         {item.type === "scheduled" && (
           <form action={requestService} className="space-y-5">

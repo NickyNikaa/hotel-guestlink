@@ -25,24 +25,54 @@ export async function requestService(formData: FormData) {
   const guest = await prisma.guest.findUnique({ where: { token } });
   if (!guest) throw new Error("Gast nicht gefunden");
 
-  // Optionale Parameter abhängig vom Item-Typ
+  // Mögliche Eingaben
   const date = formData.get("date");
   const win = formData.get("window");
   const customTime = formData.get("customTime");
   const untilTime = formData.get("untilTime");
   const customUntil = formData.get("customUntil");
+  const subOption = formData.get("subOption"); // breakfast: "book" | "drink" | "wish"
+  const drink = formData.get("drink");
+  const drinkTime = formData.get("drinkTime");
+  const freeNote = formData.get("freeNote");
 
   let params:
-    | { date?: string; window?: string; time?: string; untilTime?: string }
+    | {
+        date?: string;
+        window?: string;
+        time?: string;
+        untilTime?: string;
+        subOption?: string;
+        drink?: string;
+        drinkTime?: string;
+      }
     | undefined;
+  let note: string | undefined;
 
-  // Scheduled-Anfrage: Datum + entweder Zeitfenster oder genaue Uhrzeit
-  if (date && customTime && String(customTime).length > 0) {
+  // 1. Frühstück / Sub-Options
+  if (subOption === "book") {
+    params = { subOption: "book" };
+  } else if (subOption === "drink" && drink) {
+    params = {
+      subOption: "drink",
+      drink: String(drink),
+      ...(drinkTime ? { drinkTime: String(drinkTime) } : {}),
+    };
+  } else if (subOption === "wish") {
+    params = { subOption: "wish" };
+    if (freeNote) note = String(freeNote);
+  }
+  // 2. Sonstige Wünsche (freetext) — kein subOption, nur freeNote
+  else if (freeNote && String(freeNote).trim().length > 0) {
+    note = String(freeNote);
+  }
+  // 3. Scheduled-Anfrage: Datum + entweder Zeitfenster oder genaue Uhrzeit
+  else if (date && customTime && String(customTime).length > 0) {
     params = { date: String(date), time: String(customTime) };
   } else if (date && win) {
     params = { date: String(date), window: String(win) };
   }
-  // Duration-Anfrage: entweder Quick-Pick (untilTime) oder eigene Uhrzeit
+  // 4. Duration-Anfrage: entweder Quick-Pick (untilTime) oder eigene Uhrzeit
   else if (customUntil && String(customUntil).length > 0) {
     params = { untilTime: timeStringToISO(String(customUntil)) };
   } else if (untilTime) {
@@ -54,10 +84,10 @@ export async function requestService(formData: FormData) {
       guestId: guest.id,
       serviceItemId,
       params: params ?? undefined,
+      note,
     },
   });
 
-  // Hotel-Sicht muss neu rendern, damit das neue Ticket sofort sichtbar ist
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/tickets");
   revalidatePath(`/dashboard/guests/${guest.id}`);

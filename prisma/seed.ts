@@ -11,11 +11,12 @@ async function main() {
       email: "demo@hotel.test",
       serviceItems: {
         create: [
-          { label: "Handtuchwechsel", emoji: "🧻", sortIdx: 1, type: "scheduled" },
+          { label: "Handtuchwechsel", emoji: "🛁", sortIdx: 1, type: "scheduled" },
           { label: "Bettwäsche neu", emoji: "🛏️", sortIdx: 2, type: "scheduled" },
           { label: "Nicht stören", emoji: "🚫", sortIdx: 3, type: "duration" },
-          { label: "Frühstück dazu buchen", emoji: "🥐", sortIdx: 5, type: "simple" },
+          { label: "Frühstück", emoji: "🥐", sortIdx: 5, type: "breakfast" },
           { label: "Menü-Vorbestellung", emoji: "🍽️", sortIdx: 6, type: "simple" },
+          { label: "Sonstige Wünsche", emoji: "✏️", sortIdx: 10, type: "freetext" },
         ],
       },
     },

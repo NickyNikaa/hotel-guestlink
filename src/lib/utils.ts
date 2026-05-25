@@ -44,7 +44,19 @@ export function formatParams(
     window?: string;
     time?: string;
     untilTime?: string;
+    subOption?: string;
+    drink?: string;
+    drinkTime?: string;
   };
+
+  // Frühstück-Sub-Options haben eigene Anzeige
+  if (p.subOption === "book") return "Verbindlich dazu gebucht";
+  if (p.subOption === "drink" && p.drink) {
+    return p.drinkTime
+      ? `${p.drink} · ${p.drinkTime} Uhr`
+      : p.drink;
+  }
+  if (p.subOption === "wish") return "Besonderer Wunsch";
 
   if (type === "scheduled" && p.date) {
     const date = new Date(p.date).toLocaleDateString("de-DE", {
