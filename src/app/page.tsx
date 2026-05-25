@@ -76,18 +76,48 @@ export default function Home() {
           </ul>
         </section>
 
-        <footer className="text-sm opacity-80 pt-4">
-          Interesse an einem Pilot in Ihrem Haus? Schreiben Sie mir:{" "}
-          <a
-            href="mailto:nicky.nikaaa@gmail.com"
-            className="underline font-medium"
-          >
-            nicky.nikaaa@gmail.com
-          </a>
-          <br />
-          <span className="text-xs opacity-60">
+        <footer className="pt-6 space-y-3">
+          <p className="text-sm font-medium">
+            Interesse an einem Pilot in Ihrem Haus?
+          </p>
+          <div className="grid sm:grid-cols-3 gap-3 text-sm">
+            <a
+              href="https://wa.me/4915206772337"
+              target="_blank"
+              rel="noreferrer"
+              className="bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl px-4 py-3 transition"
+            >
+              <div className="opacity-70 text-xs uppercase tracking-wide">
+                WhatsApp / Telefon
+              </div>
+              <div className="font-medium mt-0.5">+49 1520 6772337</div>
+            </a>
+            <a
+              href="mailto:nicoleemrich@outlook.com"
+              className="bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl px-4 py-3 transition"
+            >
+              <div className="opacity-70 text-xs uppercase tracking-wide">
+                E-Mail
+              </div>
+              <div className="font-medium mt-0.5 break-all">
+                nicoleemrich@outlook.com
+              </div>
+            </a>
+            <a
+              href="https://www.linkedin.com/in/nicole-emrich/"
+              target="_blank"
+              rel="noreferrer"
+              className="bg-white/10 hover:bg-white/20 backdrop-blur rounded-xl px-4 py-3 transition"
+            >
+              <div className="opacity-70 text-xs uppercase tracking-wide">
+                LinkedIn
+              </div>
+              <div className="font-medium mt-0.5">Nicole Emrich</div>
+            </a>
+          </div>
+          <p className="text-xs opacity-60 pt-2">
             Demo-Daten werden regelmäßig zurückgesetzt.
-          </span>
+          </p>
         </footer>
       </div>
     </div>
