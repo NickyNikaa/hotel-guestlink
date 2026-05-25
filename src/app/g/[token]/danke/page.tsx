@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getLang, t } from "@/lib/i18n";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
 export default async function ThanksPage({
   params,

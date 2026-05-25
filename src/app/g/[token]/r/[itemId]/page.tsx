@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requestService } from "../../actions";
-import { getLang, t, translateItemLabel, type Lang } from "@/lib/i18n";
+import { t, translateItemLabel, type Lang } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
 const WINDOWS_KEYS = ["morning", "midday", "afternoon", "evening"] as const;
 const WINDOW_TIMES: Record<string, string> = {

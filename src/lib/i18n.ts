@@ -1,4 +1,4 @@
-import { cookies } from "next/headers";
+// Reine Übersetzungs-Bibliothek — keine Server-Only-Imports.
 
 export type Lang = "de" | "en" | "it" | "fr" | "es";
 
@@ -11,11 +11,8 @@ export const SUPPORTED_LANGS: { code: Lang; flag: string; label: string }[] = [
 ];
 
 const DICT = {
-  // Greeting + room
   welcome: { de: "Willkommen", en: "Welcome", it: "Benvenuti", fr: "Bienvenue", es: "Bienvenidos" },
   room: { de: "Zimmer", en: "Room", it: "Stanza", fr: "Chambre", es: "Habitación" },
-
-  // Main menu
   howCanWeHelp: {
     de: "Wie können wir helfen?",
     en: "How can we help?",
@@ -30,8 +27,6 @@ const DICT = {
     fr: "Les demandes arrivent directement à la réception. Pour les urgences, veuillez appeler.",
     es: "Las solicitudes llegan directamente a la recepción. Para asuntos urgentes, llame por favor.",
   },
-
-  // Navigation
   backToMenu: {
     de: "Zurück zum Menü",
     en: "Back to menu",
@@ -41,8 +36,6 @@ const DICT = {
   },
   back: { de: "Zurück", en: "Back", it: "Indietro", fr: "Retour", es: "Volver" },
   cancel: { de: "Abbrechen", en: "Cancel", it: "Annulla", fr: "Annuler", es: "Cancelar" },
-
-  // Thank-you page
   notedTitle: { de: "Notiert", en: "Noted", it: "Annotato", fr: "Noté", es: "Anotado" },
   notedBody: {
     de: "Ihre Anfrage wurde an unser Team weitergeleitet. Wir kümmern uns in den nächsten ca. 15 Minuten darum.",
@@ -58,8 +51,6 @@ const DICT = {
     fr: "Retour au menu service",
     es: "Volver al menú de servicio",
   },
-
-  // Scheduled form
   date: { de: "Datum", en: "Date", it: "Data", fr: "Date", es: "Fecha" },
   timeWindow: {
     de: "Zeitfenster",
@@ -93,8 +84,6 @@ const DICT = {
     fr: "Envoyer",
     es: "Enviar solicitud",
   },
-
-  // Duration (Nicht stören)
   notDisturbQuestion: {
     de: "Wie lange möchten Sie nicht gestört werden?",
     en: "How long would you like to not be disturbed?",
@@ -128,8 +117,6 @@ const DICT = {
   },
   until: { de: "bis", en: "until", it: "fino a", fr: "jusqu'à", es: "hasta" },
   ok: { de: "OK", en: "OK", it: "OK", fr: "OK", es: "OK" },
-
-  // Catalog forms (Menu / Roomdrinks / Gift)
   selection: { de: "Auswahl", en: "Selection", it: "Selezione", fr: "Sélection", es: "Selección" },
   quantity: { de: "Anzahl", en: "Quantity", it: "Quantità", fr: "Quantité", es: "Cantidad" },
   time: { de: "Uhrzeit", en: "Time", it: "Ora", fr: "Heure", es: "Hora" },
@@ -149,8 +136,6 @@ const DICT = {
   },
   optional: { de: "(optional)", en: "(optional)", it: "(opzionale)", fr: "(optionnel)", es: "(opcional)" },
   order: { de: "Bestellen", en: "Order", it: "Ordina", fr: "Commander", es: "Pedir" },
-
-  // Breakfast
   breakfastBookTitle: {
     de: "Frühstück dazu buchen",
     en: "Add breakfast",
@@ -195,7 +180,6 @@ const DICT = {
   },
 };
 
-// Service-Item-Labels — direkt vom deutschen DB-Label zur Übersetzung
 const ITEM_LABELS: Record<string, Record<Lang, string>> = {
   Handtuchwechsel: {
     de: "Handtuchwechsel",
@@ -255,7 +239,7 @@ const ITEM_LABELS: Record<string, Record<Lang, string>> = {
   },
 };
 
-type DictKey = keyof typeof DICT;
+export type DictKey = keyof typeof DICT;
 
 export function t(key: DictKey, lang: Lang): string {
   return DICT[key]?.[lang] ?? DICT[key]?.de ?? key;
@@ -265,10 +249,8 @@ export function translateItemLabel(label: string, lang: Lang): string {
   return ITEM_LABELS[label]?.[lang] ?? label;
 }
 
-const COOKIE_NAME = "hgl-lang";
+export const COOKIE_NAME = "hgl-lang";
 
-export async function getLang(): Promise<Lang> {
-  const c = (await cookies()).get(COOKIE_NAME)?.value;
-  if (c === "en" || c === "it" || c === "fr" || c === "es" || c === "de") return c;
-  return "de";
+export function isValidLang(value: unknown): value is Lang {
+  return value === "de" || value === "en" || value === "it" || value === "fr" || value === "es";
 }

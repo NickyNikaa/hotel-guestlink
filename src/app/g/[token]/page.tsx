@@ -2,7 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { requestService } from "./actions";
-import { getLang, t, translateItemLabel } from "@/lib/i18n";
+import { t, translateItemLabel } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default async function GuestPortal({
