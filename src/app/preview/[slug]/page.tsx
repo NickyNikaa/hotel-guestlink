@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getPreviewHotel, ALL_PREVIEW_SLUGS } from "@/lib/preview-data";
 import { PreviewServices } from "@/components/PreviewServices";
+import { PreviewModeTabs } from "@/components/PreviewModeTabs";
 import type { Metadata } from "next";
 
 export async function generateStaticParams() {
@@ -32,26 +33,7 @@ export default async function PreviewPage({
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* Sticky Demo-Banner oben */}
-      <div
-        className="sticky top-0 z-40 text-white text-xs sm:text-sm py-2.5 px-4 flex items-center justify-between shadow-md"
-        style={{ backgroundColor: hotel.brandColor }}
-      >
-        <div className="flex items-center gap-2">
-          <span className="bg-white/20 px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider">
-            Vorschau
-          </span>
-          <span className="hidden sm:inline">
-            Personalisierte Demo für {hotel.name}
-          </span>
-        </div>
-        <a
-          href="https://wa.me/4915206772337"
-          className="bg-white/20 hover:bg-white/30 px-3 py-1 rounded transition text-xs font-medium"
-        >
-          Pilot anfragen
-        </a>
-      </div>
+      <PreviewModeTabs slug={hotel.slug} brandColor={hotel.brandColor} active="guest" />
 
       {/* Hero */}
       <div className="relative h-72 sm:h-96 overflow-hidden">
