@@ -55,18 +55,29 @@ export default async function PreviewPage({
 
       {/* Hero */}
       <div className="relative h-72 sm:h-96 overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={hotel.heroImage}
-          alt={hotel.name}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(180deg, transparent 0%, transparent 50%, ${hotel.brandColorDark}CC 100%)`,
-          }}
-        />
+        {hotel.heroImage ? (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={hotel.heroImage}
+              alt={hotel.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(180deg, transparent 0%, transparent 50%, ${hotel.brandColorDark}CC 100%)`,
+              }}
+            />
+          </>
+        ) : (
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(135deg, ${hotel.brandColor} 0%, ${hotel.brandColorDark} 100%)`,
+            }}
+          />
+        )}
         <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-10 text-white">
           <p className="text-xs uppercase tracking-[0.3em] opacity-90">
             Gäste-Portal · {hotel.city}
